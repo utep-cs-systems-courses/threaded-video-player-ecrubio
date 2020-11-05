@@ -1,11 +1,7 @@
-from threading import Thread, Semaphore
+import threading
+from threading import Semaphore
 import cv2
 import numpy as np
-
-#global
-clipName = 'clip.mp4'
-frameQueue = impQueue()
-grayScaleQueue = impQueue()
 
 class impQueue:
 
@@ -30,23 +26,28 @@ class impQueue:
         self.capacity.release()
         return frame
 
-def Extract(Thread):
+#global
+clipName = 'clip.mp4'
+frameQueue = impQueue()
+grayScaleQueue = impQueue()
+    
+def Extract():
     return
 
-def GrayscaleConversion():
+def GrayScaleConversion():
     return
 
 def Display():
     return
 
 def main():
-    extractThread = Extract()
+
+    extractThread = threading.Thread(target = Extract)
+    convertThread = threading.Thread(target = GrayScaleConversion)
+    displayThread = threading.Thread(target = Display)
+
     extractThread.start()
-
-    grayScaleThread = GrayScaleConversion()
-    grayScaleThread.start()
-
-    displayThread = Display()
+    convertThread.start()
     displayThread.start()
     
 if __name__ == "__main__":
