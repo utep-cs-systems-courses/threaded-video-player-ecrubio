@@ -14,14 +14,14 @@ class impQueue:
     def enqueue(self, frame):
         self.capacity.acquire()
         self.lock.acquire()
-        self.queue.append(item)
+        self.queue.append(frame)
         self.lock.release()
         self.remaining.release()
 
     def dequeue(self):
         self.remaining.acquire()
         self.lock.acquire()
-        self.queue.pop(item)
+        frame = self.queue.pop()
         self.lock.release()
         self.capacity.release()
         return frame
@@ -32,13 +32,60 @@ frameQueue = impQueue()
 grayScaleQueue = impQueue()
     
 def Extract():
-    return
+
+    # Initialize frame count 
+    count = 0
+    # open video file
+    vidcap = cv2.VideoCapture(clipName)
+    # read first image
+    success, frame = vidcap.read()
+    print(f'Reading frame {count} {success}')
+
+    while success:
+        frameQueue.enqueue(frame)
+        success, frame = vidcap.read()
+        print(f'Reading frame {count} {success}')
+        count += 1
+
+    frameQueue.enqueue([])
 
 def GrayScaleConversion():
-    return
+
+    count = 0
+    while True:
+        print(f'Converting frame {count}')
+
+        colorFrame = frameQueue.dequeue()
+        if colorFrame == []:
+            break
+
+        # convert the image to grayscale
+        grayscaleFrame = cv2.cvtColor(colorFrame, cv2.COLOR_BGR2GRAY)
+        grayScaleQueue.enqueue(grayscaleFrame)
+        count += 1
+    grayScaleQueue.enqueue([])
 
 def Display():
-    return
+
+    count = 0
+    while True:
+        grayFrame = grayScaleQueue.dequeue()
+        if grayFrame == []:
+            break
+
+        print(f'Displaying frame {count}')        
+
+        # display the image in a window called "video" and wait 42ms
+        # before displaying the next frame
+        cv2.imshow('Video', grayFrame)
+        if cv2.waitKey(42) and 0xFF == ord("q"):
+            break
+
+        count += 1
+
+    print('Finished displaying all frames')
+    # cleanup the windows
+    cv2.destroyAllWindows()
 
 def main():
 
